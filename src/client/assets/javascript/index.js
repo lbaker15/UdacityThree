@@ -1,7 +1,7 @@
 // PROVIDED CODE BELOW (LINES 1 - 80) DO NOT REMOVE
 
 // The store will hold all information needed globally
-var store = {
+let store = {
 	track_id: undefined,
 	player_id: undefined,
 	race_id: undefined,
@@ -71,31 +71,26 @@ async function delay(ms) {
 
 // This async function controls the flow of the race, add the logic and error handling
 async function handleCreateRace() {
+	try{
 	// render starting UI
 	renderAt('#race', renderRaceStartView(store.track_id, store.players_id))
-
 	// TODO - Get player_id and track_id from the store
 	player_id = store.player_id
 	track_id = store.track_id	
+	if(!track_id || !player_id) {
+		alert(`Please select track and racer to start the race!`);
+		return;
+	}	
 	// const race = TODO - invoke the API call to create the race, then save the result
-	createRace(player_id, track_id).then(res => {
-		 return res.ID
-		//return res.id;
-	}).then(id => {
-		// TODO - update the store with the race id
-		const race_id = id - 1;
-		//console.log(race_id)
-		updateStore(store, {race_id})
-	})
-
-
-	// The race has been created, now start the countdown
-	// TODO - call the async function runCountdown
-	await runCountdown()
-	// TODO - call the async function startRace
-	await startRace(store.race_id)
-	// TODO - call the async function runRace
-	await runRace(store.race_id)
+	res = await createRace(player_id, track_id)
+	const resID = await res.ID;
+	const race_id = await resID - 1;
+	const update = await updateStore(store, {race_id})
+	const countdown = await runCountdown()
+	const start = await startRace(store.race_id)
+	const run = await runRace(store.race_id)
+	}
+	catch(error) {console.log("Error at await functions", error)}
 }
 
 function runRace(raceID) {
@@ -335,7 +330,7 @@ function defaultFetchOpts() {
 
 // TODO - Make a fetch call (with error handling!) to each of the following API endpoints 
 const updateStore = (state, newState) => {
-	store = Object.assign(state, newState)
+	store = Object.assign(state, newState);
 	//render(root, store)
 }
 
@@ -361,8 +356,6 @@ function getTracks() {
 		updateStore(store, {tracks});	
 		return tracks;	
 	})
-
-
     .catch((err) => console.log("Problem with getRacks request::", err));
 }
 
@@ -385,9 +378,8 @@ function getRace(id) {
 	// GET request to `${SERVER}/api/races/${id}`
 	return fetch(`${SERVER}/api/races/${id}`, { ...defaultFetchOpts() })
 		.then(res => res.json())
-		.then(id => {
-			return id;
-		})
+		.catch(error => console.log("Error at getRace", error))
+
 }
 
 function startRace(id) {
@@ -405,6 +397,8 @@ function accelerate(id) {
 		method: 'POST',
 		...defaultFetchOpts(),
 	})
+	.catch(error => console.log("Error at accelerate", error))
+
 	// options parameter provided as defaultFetchOpts
 	// no body or datatype needed for this request
 }
