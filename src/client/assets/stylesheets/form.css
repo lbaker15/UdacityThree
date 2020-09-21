@@ -1,6 +1,8 @@
 form ul {
     display: flex;
     padding: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 form li {
@@ -13,6 +15,15 @@ form li {
     border: 1px solid #fbf5f5;
     cursor: pointer;
     transition: all .6s;
+}
+
+.cards-list {
+    margin: 0 auto;
+    justify-content: center;
+}
+
+#submit-create-race {
+    margin: 0 auto;
 }
 
 form li:hover {
